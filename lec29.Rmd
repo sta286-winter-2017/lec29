@@ -1,0 +1,192 @@
+---
+title: "STA286 Lecture 29"
+author: "Neil Montgomery"
+date: "Last edited: `r format(Sys.time(), '%Y-%m-%d %H:%M')`"
+output: 
+  beamer_presentation:
+    keep_tex: TRUE
+    incremental: TRUE
+#    df_print: tibble
+    fig_caption: FALSE
+classoption: aspectratio=169
+header-includes:
+- \renewcommand{\le}{\leqslant}
+- \renewcommand{\ge}{\geqslant}
+- \renewcommand\P[1]{P{\left(#1\right)}}
+- \newcommand\F[1]{F_{\tiny{#1}}}
+- \newcommand\f[1]{f_{\tiny{#1}}}
+- \newcommand\p[1]{p_{\tiny{#1}}}
+- \newcommand\M[1]{M_{\tiny{#1}}}
+- \newcommand\V[1]{\text{Var}\!\left(#1\right)}
+- \newcommand\E[1]{E\!\left(#1\right)}
+- \newcommand\N[1]{N_{\tiny{#1}}}
+- \newcommand\ol{\overline}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE,
+                      dev = 'pdf')
+options(tibble.width=70, tibble.print_max=5)
+library(tidyverse)
+```
+
+## maximum likelihood summary
+
+The joint pmf/pdf is treated as a function of the parameter(s) $\theta$, given the data.
+
+This function is called a "likelihood" $L(\theta)$.
+
+A likelihood can be thought of as the "probability" of the data. 
+
+The parameter value $\hat\theta$ that maximizes $L(\theta)$ is the maximum likelihood estimator.
+
+\pause The examples we've done so far have all had a closed form solution, but this isn't necessary or even "better" in any sense. 
+
+## properties of the maximum likelihood estimator
+
+In most cases, the MLE $\hat\theta$ has all the following (amazing!) properties:
+
+1. it is asymptotically unbiased.
+
+2. it is consistent.
+
+3. it is "invariant", which means $\widehat{h(\theta)} = h(\hat\theta)$ when $h$ is a 1-1 function.
+
+4. it is asymptotically normal. (Note: convergence can be slow.)
+
+5. if $c\hat\theta$ is unbiased for some constant $c$, then $c\hat\theta$ is the unbiased estimator with the smallest variance, or "MVUE" (our "gold standard".)
+
+## the normal case
+
+Population $N(\mu, \sigma)$. Observe: $x_1,\ldots,x_n$. The MLEs are (example 9.21):
+$$\mathbf{\hat\theta} = \left(\hat\mu,\widehat{\sigma^2}\right) =
+\left(\ol{X}, \frac{\sum\left(X_i-\ol X\right)^2}{n}\right)$$
+
+\pause Therefore, $\ol{X}$ and $S^2$ are the MVUE estimators for $\mu$ and $\sigma^2$
+
+## exponential distributions - I
+
+\pause Population Exp$(\lambda)$. Observe: $x_1,\ldots,x_n$. Let's find the MLE for $\beta=1/\lambda$, which is the mean of the distribution.
+\begin{align*}
+L(\beta) &= \prod_{i=1}^n \frac{1}{\beta}e^{-x_i/\beta} = \frac{1}{\beta^n}e^{-\sum x_i/\beta}\\
+\onslide<3->{\ell(\beta) &= -n\log{\beta} - \sum x_i/\beta\\}
+\onslide<4->{\frac{d}{d\beta} \ell(\beta) &= -\frac{n}{\beta} + \frac{\sum x_i}{\beta^2}}
+\end{align*}
+
+\pause\pause\pause So the MLE is $\hat\beta = \ol{X}$. Since $\E{\ol{X}} = \beta$, it is the MVUE for $\beta$. 
+
+## exponential distributions - II
+
+Recall last week when we considered estimating $\lambda$ directly. We now know immediately that $\hat\lambda = n/(\sum X_i)$ (invariance of MLE). 
+
+\pause Then I did all that work on the board to show:
+$$\E{\hat\lambda} = \frac{n}{n-1}\lambda$$
+and that an unbiased estimator for $\lambda$ was therefore
+$$\frac{n-1}{n}\hat\lambda = \frac{n-1}{\sum X_i}$$
+
+Now we know immediately that this is the MVUE for $\lambda$
+
+## exponential distributions - III (mind-blowing version)
+
+I said we observed: $x_1,x_2,\ldots,x_n$. These often might be times-to-events, such as failure times of equipment.
+
+\pause In real life most stuff doesn't fail. Or at least we don't wait around long enought to see everything actually fail.
+
+\pause What we would more typically see is data as follows. "Today" I extract the historical data on the equipment I am interested in:
+
+\begin{table}[h!]
+\begin{tabular}{lrr}
+ID & Age & Status\\
+A023 & 6.8 & Failed\\
+A324 & 7.2 & Operating\\
+A620 & 10.1 & Taken Out of Service\\
+A092 & 2.4 & Operating\\
+A526 & 5.5 & Operating\\
+A985 & 8.1 & Failed\\
+A723 & 1.5 & Operating\\
+\vdots & \vdots & \vdots
+\end{tabular}
+\end{table}
+
+## exponential distributions - III
+
+The model for failure times is $X\sim$Exp$(\lambda)$. 
+
+What is the likelihood of the data?
+
+The likelihood for a unit to fail at time $x_i$ is: $\lambda e^{-\lambda x_i}$
+
+\pause The likelihood for a unit to not be failed yet at time $x_i$ is: $P(X > x_i) =  e^{-\lambda x_i}$
+
+\pause For example:
+
+\begin{table}[h!]
+\begin{tabular}{lrrr}
+ID & Age & Status & Likelihood\\
+A023 & 6.8 & Failed & $\lambda e^{-6.8 \lambda}$\\
+A324 & 7.2 & Operating & $e^{-7.2 \lambda}$\\
+A620 & 10.1 & Taken Out of Service & $e^{-10.1 \lambda}$\\
+A092 & 2.4 & Operating & $e^{-2.4 \lambda}$\\
+A526 & 5.5 & Operating & $e^{-5.5 \lambda}$\\
+A985 & 8.1 & Failed & $\lambda e^{-8.1 \lambda}$\\
+A723 & 1.5 & Operating & $e^{-1.5 \lambda}$\\
+\vdots & \vdots & \vdots & \vdots
+\end{tabular}
+\end{table}
+
+## exponential distributions - III
+
+When the failure time is unknown, because it hasn't happened yet, we say the failure time is \textit{censored}.
+
+Define the \textit{censoring indicator} $c_i$ to be 1 if the unit failed and 0 otherwise.
+
+\pause Putting it all together, given times $x_1,\ldots,x_n$ and censoring indicators $c_1,\ldots, c_n$, the likelihood of the data is:
+\begin{align*}
+L(\lambda) &= \prod_{i=1}^n \left(\lambda e^{-\lambda x_i}\right)^{c_i}\left(e^{-\lambda x_i}\right)^{1-c_i}\\
+\onslide<3->{&= \lambda^{\sum c_i}e^{-\lambda\sum x_i}\\}
+\onslide<4->{\ell(\lambda) &= \log{\lambda} \sum c_i - \lambda\sum x_i\\}
+\onslide<5->{\frac{d}{d\lambda} \ell (\lambda) &= \frac{\sum c_i}{\lambda} - \sum x_i}
+\end{align*}
+
+\pause\pause\pause\pause So $\hat\lambda = \frac{\sum c_i}{\sum x_i} = \frac{\text{\# of failures}}{\text{Total Time}}$. This is called an "occurence-exposure rate". 
+
+## MLE result I published in 2016
+
+The basic "shock and damage model" works like this:
+
+* a unit suffers shock events that occur according to a Poisson process $N(t)$
+
+* at each shock event, the damage suffered is $X_i$ (in general, random, but not necessarily)
+
+* the cumulative damage is a sum of a random number of random damages:
+$$Z(t) = \sum\limits_{i=1}^{N(t)} X_i$$
+
+* the unit fails the moment $Z(t)$ reaches some threshold
+
+## MLE result I published in 2016
+
+One day I encountered a situation where the company only knew the age of an item, if an item had ever suffered at least one shock event (some items never did), and the total amount of damage.
+
+\pause The company needed an estimate of the Poisson rate $\lambda$ at which shocks occurred (among other things).
+
+\pause So I went looking for the method that everyone used to estimate the rate in these situations. But nobody had ever done this before.
+
+\pause (Many OR professors like to propose models, but often do not dirty themselves with actual data.)
+
+## MLE result I published in 2016
+
+\pause I introduced a "shock indicator" $d_i$ which is 1 when one or more shocks occurred, and 0 otherwise.
+
+\pause The probabilities of having endured 0, or 1+ shocks by age $t_i$ are:
+\begin{align*}
+P(N(t_i) = 0) &= e^{-\lambda t_i}\\
+P(N(t_i)>0) &= 1-e^{-\lambda t_i}
+\end{align*}
+
+\pause The likelihood for $\lambda$ is therefore:
+\begin{align*}
+L(\lambda) & =\prod_{i=1}^{n} \left(e^{-\lambda t_i}\right)^{1-d_i}\left(1-e^{-\lambda t_i}\right)^{d_i}\\
+\onslide<5->{\ell(\lambda) &= -\lambda\sum_{i=1}^n t_i(1-d_i) + \sum_{i=1}^n d_i \log\left(1-e^{-\lambda t_i}\right)}
+\end{align*}
+
+\pause\pause\pause\pause This can only be maximized numerically.
