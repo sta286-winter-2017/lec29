@@ -50,7 +50,7 @@ In most cases, the MLE $\hat\theta$ has all the following (amazing!) properties:
 
 2. it is consistent.
 
-3. it is "invariant", which means $\widehat{h(\theta)} = h(\hat\theta)$ when $h$ is a 1-1 function.
+3. it is "invariant", which means $\widehat{h(\theta)} = h(\hat\theta)$ when $h$ is a smooth 1-1 function.
 
 4. it is asymptotically normal. (Note: convergence can be slow.)
 
@@ -73,7 +73,9 @@ L(\beta) &= \prod_{i=1}^n \frac{1}{\beta}e^{-x_i/\beta} = \frac{1}{\beta^n}e^{-\
 \onslide<4->{\frac{d}{d\beta} \ell(\beta) &= -\frac{n}{\beta} + \frac{\sum x_i}{\beta^2}}
 \end{align*}
 
-\pause\pause\pause So the MLE is $\hat\beta = \ol{X}$. Since $\E{\ol{X}} = \beta$, it is the MVUE for $\beta$. 
+\pause\pause\pause (Technicality: so the ML estimat\textit{\textbf{e}} is $\ol{x}$...)
+
+\pause ...and the ML estimat\textit{\textbf{or}} is $\hat\beta = \ol{X}$. Since $\E{\ol{X}} = \beta$, it is the MVUE for $\beta$. 
 
 ## exponential distributions - II
 
@@ -88,9 +90,9 @@ Now we know immediately that this is the MVUE for $\lambda$
 
 ## exponential distributions - III (mind-blowing version)
 
-I said we observed: $x_1,x_2,\ldots,x_n$. These often might be times-to-events, such as failure times of equipment.
+I said we observed: $x_1,x_2,\ldots,x_n$. These often might be times-to-events, such as failure times of equipment, or the death/remission times of people in a medical study. 
 
-\pause In real life most stuff doesn't fail. Or at least we don't wait around long enought to see everything actually fail.
+\pause In real life analyses most stuff doesn't fail, and most people survive. Or at least we don't wait around long enought to see everything actually fail.
 
 \pause What we would more typically see is data as follows. "Today" I extract the historical data on the equipment I am interested in:
 
@@ -116,7 +118,7 @@ What is the likelihood of the data?
 
 The likelihood for a unit to fail at time $x_i$ is: $\lambda e^{-\lambda x_i}$
 
-\pause The likelihood for a unit to not be failed yet at time $x_i$ is: $P(X > x_i) =  e^{-\lambda x_i}$
+\pause The likelihood for a unit to not have failed yet at time $x_i$ is: $P(X > x_i) =  e^{-\lambda x_i}$
 
 \pause For example:
 
@@ -149,6 +151,22 @@ L(\lambda) &= \prod_{i=1}^n \left(\lambda e^{-\lambda x_i}\right)^{c_i}\left(e^{
 \end{align*}
 
 \pause\pause\pause\pause So $\hat\lambda = \frac{\sum c_i}{\sum x_i} = \frac{\text{\# of failures}}{\text{Total Time}}$. This is called an "occurence-exposure rate". 
+
+## occurrence-exposure example
+
+Here are 50 simulated "ages" from an Exp(0.1) population, "censored" at 9.0 "years"
+
+```{r}
+options(width=60)
+times <- pmin(rexp(50, 0.1), 9)
+round(times, 2)
+```
+
+The "naive" mean life estimate (the average of the failed units only): `r round(mean(times[times < 9]), 3)`.
+
+The MLE: `r round(sum(times)/sum(times < 9), 3)`.
+
+
 
 ## MLE result I published in 2016
 
